@@ -1,4 +1,5 @@
 import sys
+import subprocess
 import os
 
 
@@ -16,25 +17,60 @@ def main():
             break
         # prints out the contents after the echo command
         elif command.startswith("echo "):
-            print(command[5:])
+            text = command[5:]
+
+            if text.startswith('"') and text.endswith('"'):
+                print(text.strip('"'))
+            elif text.startswith("'") and text.endswith("'"):
+                print(text.strip("'"))
+            else:
+                print(text)
+
+        # Prints the type of command
         elif command.startswith("type "):
-            _, cmd = command.split(maxsplit=1)
-            if cmd in {"exit", "echo", "type"}:
-                print(f"{cmd} is a shell builtin")
-                continue
+            commands = command.split()[1:]
+
+            # Loops over the commands after type if there are multiple
+            for cmd in commands:
+                if cmd in {"exit", "echo", "type"}:
+                    print(f"{cmd} is a shell builtin")
+                    continue
+
+                executable_path = search_executables(cmd)
+
+                if executable_path:
+                    print(f"{cmd} is {executable_path}")
+                else:
+                    print(f"{cmd}: not found")
+
+        # Runs the command if it exists with the arguments else prints command not found
+        else:
+            cmd, arguments = command, None
+
+            if " " in command:
+                cmd, arguments = command.split(maxsplit=1)
 
             executable_path = search_executables(cmd)
 
+            if arguments:
+                cmd = cmd.split()
+                cmd.extend(arguments.split())
+
             if executable_path:
-                print(f"{cmd} is {executable_path}")
-            else:
-                print(f"{cmd}: not found")
-        else:
-            print(f"{command}: command not found")
+                completed_process = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                )
+
+                print(completed_process.stdout, end="")
+                continue
+
+            print(f"{cmd[0] if isinstance(cmd, list) else cmd}: command not found")
 
 
 # Searches for command in the PATH directories
-# Returns True if it exists and has execute permissions else None
+# Returns absotlue path if it exists and has execute permissions else None
 def search_executables(command: str) -> str | None:
     # Get the PATH env variable
     env_path = os.environ.get("PATH")
