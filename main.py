@@ -17,6 +17,8 @@ def main():
         # Exits out of the REPL loop
         if command == "exit":
             break
+        elif command == "pwd":
+            print(os.getcwd())
         # prints out the contents after the echo command
         elif command.startswith("echo"):
             # Grabs the content after the echo command (empty if theres nothing after)
