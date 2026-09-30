@@ -2,6 +2,8 @@ import sys
 import subprocess
 import os
 
+from constants import SHELL_BUILTINS
+
 
 def main():
     # Indefinite loop to implement REPL
@@ -10,29 +12,32 @@ def main():
         sys.stdout.write("$ ")
 
         # Wait for user input
-        command = input()
+        command = input().strip()
 
         # Exits out of the REPL loop
         if command == "exit":
             break
         # prints out the contents after the echo command
-        elif command.startswith("echo "):
+        elif command.startswith("echo"):
+            # Grabs the content after the echo command (empty if theres nothing after)
             text = command[5:]
 
+            # Removes '' or "" if it surrounds the text after the command
             if text.startswith('"') and text.endswith('"'):
-                print(text.strip('"'))
+                text = text.strip('"')
             elif text.startswith("'") and text.endswith("'"):
-                print(text.strip("'"))
-            else:
-                print(text)
+                text = text.strip("'")
+
+            print(text)
 
         # Prints the type of command
-        elif command.startswith("type "):
+        elif command.startswith("type"):
             commands = command.split()[1:]
 
             # Loops over the commands after type if there are multiple
+            # Checks if it's built-in else it'll check if it's an executable
             for cmd in commands:
-                if cmd in {"exit", "echo", "type"}:
+                if cmd in SHELL_BUILTINS:
                     print(f"{cmd} is a shell builtin")
                     continue
 
@@ -43,18 +48,11 @@ def main():
                 else:
                     print(f"{cmd}: not found")
 
-        # Runs the command if it exists with the arguments else prints command not found
+        # Runs the command if it exists with arguments (if there are any passed)
+        # else prints command not found
         else:
-            cmd, arguments = command, None
-
-            if " " in command:
-                cmd, arguments = command.split(maxsplit=1)
-
-            executable_path = search_executables(cmd)
-
-            if arguments:
-                cmd = cmd.split()
-                cmd.extend(arguments.split())
+            cmd = command.split()
+            executable_path = search_executables(cmd[0])
 
             if executable_path:
                 completed_process = subprocess.run(
