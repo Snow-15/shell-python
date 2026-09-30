@@ -24,14 +24,13 @@ def main():
             # Gets the directory path else it's empty
             directory_path = "".join(command.split()[1:])
             
-            # if no additional argument is passed then it'll change
-            # to the home dir
-            if directory_path == "":
+            # if there's no additional argument or "~" is passed
+            # then it'll change to the home dir
+            if directory_path == "" or directory_path == "~":
                 os.chdir(os.environ.get("HOME"))
                 continue
 
             directory_path_abs = os.path.abspath(directory_path)
-            print(directory_path_abs)
             # Check if the path is not a valid directory or if it doesn't exist
             if not os.path.isdir(directory_path_abs):
                 print(f"cd: {directory_path}: No such file or directory")
