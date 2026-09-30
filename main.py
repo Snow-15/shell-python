@@ -30,12 +30,14 @@ def main():
                 os.chdir(os.environ.get("HOME"))
                 continue
 
+            directory_path_abs = os.path.abspath(directory_path)
+            print(directory_path_abs)
             # Check if the path is not a valid directory or if it doesn't exist
-            if not os.path.isdir(directory_path):
+            if not os.path.isdir(directory_path_abs):
                 print(f"cd: {directory_path}: No such file or directory")
                 continue
 
-            os.chdir(directory_path)
+            os.chdir(directory_path_abs)
 
 
         # prints out the contents after the echo command
