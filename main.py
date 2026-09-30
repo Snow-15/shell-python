@@ -17,8 +17,27 @@ def main():
         # Exits out of the REPL loop
         if command == "exit":
             break
+        # Prints the current working directory (where main.py is executed)
         elif command == "pwd":
             print(os.getcwd())
+        elif command.startswith("cd"):
+            # Gets the directory path else it's empty
+            directory_path = "".join(command.split()[1:])
+            
+            # if no additional argument is passed then it'll change
+            # to the home dir
+            if directory_path == "":
+                os.chdir(os.environ.get("HOME"))
+                continue
+
+            # Check if the path is not a valid directory or if it doesn't exist
+            if not os.path.isdir(directory_path):
+                print(f"cd: {directory_path}: No such file or directory")
+                continue
+
+            os.chdir(directory_path)
+
+
         # prints out the contents after the echo command
         elif command.startswith("echo"):
             # Grabs the content after the echo command (empty if theres nothing after)

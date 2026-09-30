@@ -3,4 +3,5 @@ SHELL_BUILTINS = {
     "type",
     "exit",
     "pwd",
+    "cd",
 }
